@@ -6,7 +6,10 @@ import (
 	"sync"
 )
 
+var signals []string
+
 var wg sync.WaitGroup
+var mute sync.Mutex
 
 func main() {
 	websiteList := []string{
@@ -24,12 +27,17 @@ func main() {
 	}
 
 	wg.Wait()
+	fmt.Println("Signals : ", signals)
 
 }
 
 func getStatuscode(endpoint string) {
 
 	defer wg.Done()
+
+	mute.Lock()
+	signals = append(signals, endpoint)
+	mute.Unlock()
 
 	res, err := http.Get(endpoint)
 	if err != nil {
